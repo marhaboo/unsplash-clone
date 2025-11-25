@@ -64,7 +64,7 @@ final class NetworkManager {
     // MARK: - Photos
     static func getEditorialPhotos(
         page: Int = 1,
-        perPage: Int = 10,
+        perPage: Int = 20,
         completion: @escaping (Result<[UnsplashPhotoResponse], Error>) -> Void
     ) {
         performRequest(

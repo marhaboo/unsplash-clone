@@ -73,7 +73,7 @@ final class HomeCollectionViewCell: UICollectionViewCell {
         subTitleLabel.text = nil
     }
     
-    // MARK: - Image loading (basic cache)
+    // MARK: - Image loading (
     private func loadImage(from url: URL) {
         let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 30)
         imageTask = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in

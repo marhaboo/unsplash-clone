@@ -14,16 +14,18 @@ class HomeViewController: UIViewController, CategoryBarViewDelegate {
     private var contentItems: [UnsplashPhotoResponse] = []
     private var categoryItems: [UnsplashTopicResponse] = []
     private var isTwoColumnLayout = false
-    private let cellSpacing: CGFloat = 2.5
+    private let cellSpacing: CGFloat = 1
 
     // MARK: UI
     private lazy var collectionView: UICollectionView = {
-        let flow = UICollectionViewFlowLayout()
-        flow.scrollDirection = .vertical
-        flow.minimumInteritemSpacing = 0
-        flow.minimumLineSpacing = 0
+        let layout = PinterestLayout()
+        layout.delegate = self
+        layout.numberOfColumns = isTwoColumnLayout ? 2 : 1
+        layout.cellSpacing = cellSpacing
+
         
-        let collection = UICollectionView(frame: .zero, collectionViewLayout: flow)
+        let collection = UICollectionView(frame: .zero,
+                                          collectionViewLayout: layout)
         collection.register(HomeCollectionViewCell.self,
                             forCellWithReuseIdentifier: "HomeCell")
         collection.backgroundColor = .black
@@ -101,9 +103,9 @@ class HomeViewController: UIViewController, CategoryBarViewDelegate {
         // MARK: - Center: Title
         navigationItem.title = "Unsplash"
 
-        // MARK: - Right: Action icon (menu / grid)
+        // MARK: - Right: Action icon
         let menuButton = UIButton(type: .system)
-        menuButton.setImage(UIImage(systemName: isTwoColumnLayout ? "rectangle.split.2x1" : "square.grid.2x2.fill" ), for: .normal)
+        menuButton.setImage(UIImage(systemName: isTwoColumnLayout ? "rectangle.split.2x1.fill" : "square.grid.2x2.fill" ), for: .normal)
         menuButton.tintColor = .white
         menuButton.addTarget(self, action: #selector(didTapMenuButton), for: .touchUpInside)
         let rightItem = UIBarButtonItem(customView: menuButton)
@@ -123,17 +125,24 @@ class HomeViewController: UIViewController, CategoryBarViewDelegate {
 
     @objc private func didTapMenuButton() {
         isTwoColumnLayout.toggle()
-        
-        UIView.animate(withDuration: 0.3) {
+
+        if let layout = collectionView.collectionViewLayout as? PinterestLayout {
+            layout.numberOfColumns = isTwoColumnLayout ? 2 : 1
+            layout.cellSpacing = cellSpacing
+        }
+
+        UIView.animate(withDuration: 0.25) {
             self.collectionView.collectionViewLayout.invalidateLayout()
             self.collectionView.layoutIfNeeded()
         }
-        
-        if let menuButton = navigationItem.rightBarButtonItem?.customView as? UIButton {
-            let iconName = isTwoColumnLayout ? "rectangle.split.2x1.fill" : "square.grid.2x2.fill"
-            menuButton.setImage(UIImage(systemName: iconName), for: .normal)
+
+        if let btn = navigationItem.rightBarButtonItem?.customView as? UIButton {
+            let icon = isTwoColumnLayout ? "rectangle.split.2x1.fill" : "square.grid.2x2.fill"
+            btn.setImage(UIImage(systemName: icon), for: .normal)
         }
     }
+
+
 
    
     
@@ -180,36 +189,6 @@ extension HomeViewController: UICollectionViewDataSource {
 
 // MARK: - Layout
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        let photo = contentItems[indexPath.item]
-        let numberOfColumns: CGFloat = isTwoColumnLayout ? 2 : 1
-        
-        let totalSpacing = (numberOfColumns - 1) * cellSpacing
-        let collectionWidth = collectionView.bounds.width
-        let cellWidth = (collectionWidth - totalSpacing) / numberOfColumns
-        
-        let aspectRatio = CGFloat(photo.height) / CGFloat(photo.width)
-        let photoHeight = cellWidth * aspectRatio
-        let extraHeight: CGFloat = 60
-        
-        return CGSize(width: cellWidth, height: photoHeight + extraHeight)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return isTwoColumnLayout ? cellSpacing : 0
-    }
-
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return isTwoColumnLayout ? cellSpacing : 0
-    }
 
 }
 
@@ -217,5 +196,16 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 extension HomeViewController {
     func didSelectCategory(index: Int) {
         print("Selected category at index: \(index)")
+    }
+}
+extension HomeViewController: PinterestLayoutDelegate {
+
+    func collectionView(_ collectionView: UICollectionView,
+                        heightForPhotoAt indexPath: IndexPath,
+                        cellWidth: CGFloat) -> CGFloat {
+
+        let item = contentItems[indexPath.item]
+        let aspect = CGFloat(item.height) / CGFloat(item.width)
+        return cellWidth * aspect + 40  
     }
 }
