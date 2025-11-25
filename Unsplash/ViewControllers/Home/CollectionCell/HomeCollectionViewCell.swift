@@ -1,4 +1,9 @@
+//
 // HomeCollectionViewCell.swift
+//  Unsplash
+//
+//  Created by Boynurodova Marhabo on 19/11/25.
+//
 
 import UIKit
 import SnapKit
@@ -19,6 +24,10 @@ final class HomeCollectionViewCell: UICollectionViewCell {
             titleLabel.text = content.user.name
             subTitleLabel.text = content.user.username
         }
+    }
+    
+    func updateContent(_ photo: UnsplashPhotoResponse) {
+        self.content = photo
     }
     
     // MARK: - UI Components
@@ -85,7 +94,6 @@ final class HomeCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupConstraints() {
-        
         containerImageView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             make.height.equalToSuperview()

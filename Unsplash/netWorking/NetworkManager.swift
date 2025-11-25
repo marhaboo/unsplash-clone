@@ -1,4 +1,3 @@
-//
 //  NetworkManager.swift
 //  Unsplash
 //
@@ -7,22 +6,20 @@
 
 import Foundation
 
-
 final class NetworkManager {
     
+    // MARK: - Properties
     private static let access_key = "XrKn9CasOaRl4ylCQ2o0PkDhj_x-OyQlytxwY6GUDvo"
     
-    static func getEditorialPhotos(
-        page: Int = 1,
-        perPage: Int = 10,
-        completion: @escaping (Result<[UnsplashPhotoResponse], Error>) -> Void
+    
+    // MARK: - Generic Request
+    private static func performRequest<T: Decodable>(
+        urlString: String,
+        queryItems: [URLQueryItem] = [],
+        completion: @escaping (Result<T, Error>) -> Void
     ) {
-        guard var components = URLComponents(string: "https://api.unsplash.com/photos") else { return }
-        
-        components.queryItems = [
-            URLQueryItem(name: "page", value: "\(page)"),
-            URLQueryItem(name: "per_page", value: "\(perPage)")
-        ]
+        guard var components = URLComponents(string: urlString) else { return }
+        components.queryItems = queryItems
         
         guard let url = components.url else { return }
         
@@ -33,7 +30,6 @@ final class NetworkManager {
         print("Sending request to:", url)
         
         URLSession.shared.dataTask(with: request) { data, response, error in
-            
             if let error = error {
                 print("Request Error:", error)
                 completion(.failure(error))
@@ -54,9 +50,8 @@ final class NetworkManager {
             }
             
             do {
-                let photos = try JSONDecoder().decode([UnsplashPhotoResponse].self, from: data)
-                print("Decoded photos count:", photos.count)
-                completion(.success(photos))
+                let decoded = try JSONDecoder().decode(T.self, from: data)
+                completion(.success(decoded))
             } catch {
                 print("Decoding Error:", error)
                 completion(.failure(error))
@@ -64,4 +59,67 @@ final class NetworkManager {
             
         }.resume()
     }
+    
+    
+    // MARK: - Photos
+    static func getEditorialPhotos(
+        page: Int = 1,
+        perPage: Int = 10,
+        completion: @escaping (Result<[UnsplashPhotoResponse], Error>) -> Void
+    ) {
+        performRequest(
+            urlString: "https://api.unsplash.com/photos",
+            queryItems: [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "per_page", value: "\(perPage)")
+            ],
+            completion: completion
+        )
+    }
+    
+    
+    // MARK: - Topics
+    static func getTopics(
+        page: Int = 1,
+        perPage: Int = 10,
+        completion: @escaping (Result<[UnsplashTopicResponse], Error>) -> Void
+    ) {
+        performRequest(
+            urlString: "https://api.unsplash.com/topics",
+            queryItems: [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "per_page", value: "\(perPage)")
+            ],
+            completion: completion
+        )
+    }
+    
+    // MARK: - Search Photos
+    static func searchPhotos(
+        query: String,
+        page: Int = 1,
+        perPage: Int = 10,
+        completion: @escaping (Result<[UnsplashPhotoResponse], Error>) -> Void
+    ) {
+        performRequest(
+            urlString: "https://api.unsplash.com/search/photos",
+            queryItems: [
+                URLQueryItem(name: "query", value: query),
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "per_page", value: "\(perPage)")
+            ]
+        ) { (result: Result<SearchPhotoResponse, Error>) in
+            switch result {
+            case .success(let searchResponse):
+                completion(.success(searchResponse.results))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
 }
+
+
+
+
+

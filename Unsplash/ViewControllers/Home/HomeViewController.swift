@@ -12,6 +12,7 @@ class HomeViewController: UIViewController, CategoryBarViewDelegate {
     
     // MARK: Properties
     private var contentItems: [UnsplashPhotoResponse] = []
+    private var categoryItems: [UnsplashTopicResponse] = []
     private var isTwoColumnLayout = false
     private let cellSpacing: CGFloat = 2.5
 
@@ -38,15 +39,14 @@ class HomeViewController: UIViewController, CategoryBarViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
-        
-        categoryBar.setCategories(["Editorial", "Wallpapers", "3D Renders", "Nature", "Textures"])
-        categoryBar.delegate = self
+
       
 
         
         configureNavigationBar()
         addSubview()
         fetchPhotos()
+        fetchTopics()
         makeConstraints()
     }
     
@@ -64,6 +64,26 @@ class HomeViewController: UIViewController, CategoryBarViewDelegate {
             }
         }
     }
+    
+    private func fetchTopics() {
+        print("💡 Fetching topics...")
+        
+        NetworkManager.getTopics { result in
+            switch result {
+            case .success(let topics):
+                self.categoryItems = topics
+
+                DispatchQueue.main.async {
+                    let titles = topics.map { $0.title }
+                    self.categoryBar.setCategories(titles)
+                }
+
+            case .failure(let error):
+                print("❌ Error fetching topics:", error)
+            }
+        }
+    }
+
     
     private func configureNavigationBar() {
         navigationController?.navigationBar.tintColor = .white
