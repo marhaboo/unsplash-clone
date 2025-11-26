@@ -41,6 +41,8 @@ class HomeViewController: UIViewController, CategoryBarViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
+        
+        categoryBar.delegate = self
 
       
 
@@ -195,7 +197,11 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 
 extension HomeViewController {
     func didSelectCategory(index: Int) {
-        print("Selected category at index: \(index)")
+        guard index >= 0, index < categoryItems.count else {return}
+        let topic = categoryItems[index]
+        
+        let vc = TopicPhotosViewController(topicTitle: topic.title, topicSlug: topic.slug)
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 extension HomeViewController: PinterestLayoutDelegate {

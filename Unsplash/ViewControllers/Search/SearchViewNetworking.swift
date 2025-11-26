@@ -16,7 +16,7 @@ extension SearchViewController {
             case .success(let topics):
                 self.categoryItems = topics
                 self.categories = topics.map { $0.title }
-                DispatchQueue.main.async { self.setupCategories() }
+                DispatchQueue.main.async { self.buildCategoryGrid() }
             case .failure(let error):
                 print("Error fetching topics:", error)
             }
@@ -47,5 +47,4 @@ extension SearchViewController {
         }
     }
 }
-
 

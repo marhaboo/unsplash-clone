@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-final class SearchViewController: UIViewController {
+final class SearchViewController: UIViewController, PinterestLayoutDelegate {
 
     // MARK: - Properties
     var discoverItems: [UnsplashPhotoResponse] = []
@@ -25,10 +25,10 @@ final class SearchViewController: UIViewController {
     let categoryScrollView = UIScrollView()
     let categoryStack = UIStackView()
     let discoverCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 2
-        layout.minimumInteritemSpacing = 2
+        let layout = PinterestLayout()
+        layout.numberOfColumns = 2
+        layout.cellSpacing = 2
+        
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.backgroundColor = .black
         collection.register(HomeCollectionViewCell.self, forCellWithReuseIdentifier: "HomeCell")
@@ -49,4 +49,7 @@ final class SearchViewController: UIViewController {
         fetchTopics()
         fetchDiscoverPhotos()
     }
+    
 }
+
+

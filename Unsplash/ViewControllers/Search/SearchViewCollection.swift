@@ -13,6 +13,11 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     func setupCollectionView() {
         discoverCollectionView.dataSource = self
         discoverCollectionView.delegate = self
+        
+        if let layout = discoverCollectionView.collectionViewLayout as? PinterestLayout {
+            layout.delegate = self
+        }
+
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -32,4 +37,14 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         let height = width * CGFloat(photo.height)/CGFloat(photo.width)
         return CGSize(width: width, height: height)
     }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        heightForPhotoAt indexPath: IndexPath,
+                        cellWidth: CGFloat) -> CGFloat {
+
+        let item = discoverItems[indexPath.item]
+        let aspect = CGFloat(item.height) / CGFloat(item.width)
+        return cellWidth * aspect
+    }
+
 }

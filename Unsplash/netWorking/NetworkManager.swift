@@ -94,6 +94,25 @@ final class NetworkManager {
         )
     }
     
+    // MARK: - Topic Photos
+    static func getTopicPhotos(
+        slug: String,
+        page: Int = 1,
+        perPage: Int = 30,
+        orderBy: String = "latest",
+        completion: @escaping (Result<[UnsplashPhotoResponse], Error>) -> Void
+    ) {
+        performRequest(
+            urlString: "https://api.unsplash.com/topics/\(slug)/photos",
+            queryItems: [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "per_page", value: "\(perPage)"),
+                URLQueryItem(name: "order_by", value: orderBy)
+            ],
+            completion: completion
+        )
+    }
+    
     // MARK: - Search Photos
     static func searchPhotos(
         query: String,
@@ -118,8 +137,4 @@ final class NetworkManager {
         }
     }
 }
-
-
-
-
 

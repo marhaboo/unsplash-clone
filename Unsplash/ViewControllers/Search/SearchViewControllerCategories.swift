@@ -10,7 +10,7 @@ import SnapKit
 
 extension SearchViewController {
 
-    func setupCategories() {
+    func buildCategoryGrid() {
         categoryStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
         let row1 = UIStackView()
@@ -24,6 +24,11 @@ extension SearchViewController {
             let container = UIView()
             container.layer.cornerRadius = 10
             container.clipsToBounds = true
+            container.isUserInteractionEnabled = true
+            container.tag = index
+
+            let tap = UITapGestureRecognizer(target: self, action: #selector(didTapCategory(_:)))
+            container.addGestureRecognizer(tap)
 
             let imageView = UIImageView()
             imageView.contentMode = .scaleAspectFill
@@ -60,4 +65,15 @@ extension SearchViewController {
         categoryStack.addArrangedSubview(row1)
         categoryStack.addArrangedSubview(row2)
     }
+
+    @objc private func didTapCategory(_ gesture: UITapGestureRecognizer) {
+        guard let view = gesture.view else { return }
+        let index = view.tag
+        guard categoryItems.indices.contains(index) else { return }
+        let topic = categoryItems[index]
+
+        let vc = TopicPhotosViewController(topicTitle: topic.title, topicSlug: topic.slug)
+        navigationController?.pushViewController(vc, animated: true)
+    }
 }
+
